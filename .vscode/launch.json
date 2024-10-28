@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'dioxus-sandbox'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=dioxus-sandbox",
+                    "--package=dioxus-sandbox"
+                ],
+                "filter": {
+                    "name": "dioxus-sandbox",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
