@@ -5,6 +5,8 @@ use dioxus_logger::tracing::{info, Level};
 mod components; // Add this line
 use components::story_listing::{StoryItem, StoryListing}; // Update this line
 
+mod modules;
+
 fn main() {
     // Init logger
     dioxus_logger::init(Level::INFO).expect("failed to init logger");
