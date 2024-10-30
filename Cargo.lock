@@ -1066,6 +1066,7 @@ dependencies = [
  "dioxus",
  "dioxus-logger",
  "futures",
+ "petgraph",
  "reqwest",
  "serde",
  "serde_json",

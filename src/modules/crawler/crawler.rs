@@ -2,6 +2,18 @@ use std::fs;
 use std::path::PathBuf;
 use std::collections::HashMap;
 
+#[derive(Debug)]
+pub struct ComponentCount {
+    pub name: String,
+    pub count: usize,
+}
+
+#[derive(Debug, PartialEq)]
+pub struct Node {
+    pub componentName: String,
+    pub locations: Vec<String>,
+}
+
 pub fn get_all_file_paths(dir: &str) -> Vec<PathBuf> {
   let mut file_paths = Vec::new();
   
@@ -33,30 +45,39 @@ pub fn print_all_file_paths() {
     }
 }
 
-pub fn crawl(dir: &str) -> HashMap<String, Vec<ComponentCount>> {
+pub fn crawl(dir: &str) -> HashMap<String, Node> {
     println!("Crawling directory: {:?}", dir);
     let file_paths = get_all_file_paths(dir);
-    let mut results: HashMap<String, Vec<ComponentCount>> = HashMap::new();
+
+    let mut nodes: HashMap<String, Node> = HashMap::new();
 
     for file_path in file_paths {
         let content = fs::read_to_string(&file_path).expect("Unable to read file");
         let template_block = extract_template_block(&content);
 
-        let mut component_counts: HashMap<String, usize> = HashMap::new();
+        let components = extract_components(&template_block);
 
-        for component in extract_components(&template_block) {
-            *component_counts.entry(component).or_insert(0) += 1;
+        if(components.len() > 0) {
+            let file_path_str = file_path.display().to_string();
+            for component in components.iter() {
+                if !nodes.contains_key(component) {
+                    nodes.insert(component.clone(), Node {
+                        componentName: component.clone(),
+                        locations: vec![file_path_str.clone()]
+                    });
+                } else {
+                    let node = nodes.get_mut(component).unwrap();
+                    node.locations.push(file_path_str.clone());
+                }
+            }
         }
-
-        let result: Vec<ComponentCount> = component_counts.into_iter()
-            .map(|(name, count)| ComponentCount { name, count })
-            .collect();
-
-        // println!("File: {:?}, Components: {:?}", file_path, result);
-        results.insert(file_path.display().to_string(), result);
     }
+    nodes
+}
 
-    results
+fn component_filter(component: &ComponentCount) -> bool {
+    // filter out components with names that start with /
+    !component.name.starts_with("/") && !is_valid_html_tag(&component.name)
 }
 
 fn extract_template_block(content: &str) -> String {
@@ -99,8 +120,11 @@ fn extract_components(template_block: &str) -> Vec<String> {
     components
 }
 
-#[derive(Debug)]
-pub struct ComponentCount {
-    pub name: String,
-    pub count: usize,
+const HTML_TAGS: &[&str] = &[
+    "a", "abbr", "address", "area", "article", "aside", "audio", "b", "base", "bdi", "bdo", "blockquote", "body", "br", "button", "canvas", "caption", "cite", "code", "col", "colgroup", "data", "datalist", "dd", "del", "details", "dfn", "dialog", "div", "dl", "dt", "em", "embed", "fieldset", "figcaption", "figure", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "head", "header", "hgroup", "hr", "html", "i", "iframe", "img", "input", "ins", "kbd", "label", "legend", "li", "link", "main", "map", "mark", "meta", "meter", "nav", "noscript", "object", "ol", "optgroup", "option", "output", "p", "param", "picture", "pre", "progress", "q", "rp", "rt", "ruby", "s", "samp", "script", "section", "select", "small", "source", "span", "strong", "style", "sub", "summary", "sup", "table", "tbody", "td", "template", "textarea", "tfoot", "th", "thead", "time", "title", "tr", "track", "u", "ul", "var", "video", "wbr"
+];
+
+fn is_valid_html_tag(tag: &str) -> bool {
+    HTML_TAGS.contains(&tag)
 }
+
