@@ -32,7 +32,7 @@ pub fn get_all_file_paths(dir: &str) -> Vec<PathBuf> {
       }
   }
   
-  file_paths
+  file_paths    
 }
 
 // Example usage

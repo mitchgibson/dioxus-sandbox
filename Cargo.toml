@@ -9,8 +9,8 @@ edition = "2021"
 [dependencies]
 async-recursion = "1.1.1"
 chrono = { version = "0.4.38", features = ["serde"] }
-
 dioxus = { version = "0.5", features = ["desktop"] }
+web-sys = "0.3"
 
 # Debug
 dioxus-logger = "0.5.1"

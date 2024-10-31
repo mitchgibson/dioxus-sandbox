@@ -3,7 +3,6 @@
 use dioxus::prelude::*;
 use dioxus_logger::tracing::{info, Level};
 mod components; // Add this line
-use components::story_listing::{StoryItem, StoryListing}; // Update this line
 
 mod modules;
 
@@ -20,22 +19,18 @@ fn main() {
 #[component]
 fn App() -> Element {
     // Build cool things ✌️
-
+    let mut text_input = use_signal(|| String::new());
+    let on_input = move |evt: Event<FormData>| {
+        text_input.set(evt.value().clone());
+    };
     rsx! {
         link { rel: "stylesheet", href: "main.css" }
-        StoryListing {
-            story: StoryItem {
-                id: 0,
-                title: "hello hackernews".to_string(),
-                url: None,
-                text: None,
-                by: "Author".to_string(),
-                score: 0,
-                descendants: 0,
-                time: chrono::Utc::now(),
-                kids: vec![],
-                r#type: "".to_string(),
-            }
+        input {
+            r#type: "text",
+            name: "example_input",
+            value: text_input,
+            oninput: on_input
         }
+        p { class: "text-white", "Text: {text_input}"}
     }
 }
